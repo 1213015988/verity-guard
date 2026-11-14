@@ -3,4 +3,4 @@ name=verity-guard 分区守卫
 version=1.5.0
 versionCode=150
 author=dsh
-description=1 建基线 → 2 备份 → 3 检测；命令行用 sh /data/adb/vg，状态见 状态.txt
+description=BL 未解锁 + 已 root 的安全防护：1 建基线 → 2 备份 → 3 检测；命令行 sh /data/adb/vg
