@@ -1,0 +1,12 @@
+# 构建产物
+dist/
+*.zip
+
+# 运行期数据（在 /sdcard 上，不应该进仓库）
+baseline.txt
+baseline.json
+状态.txt
+status.txt
+backup/
+chan/
+exports/
