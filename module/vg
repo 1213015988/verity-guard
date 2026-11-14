@@ -1,0 +1,50 @@
+#!/system/bin/sh
+# vg —— 命令行门面（Magisk / adb / Termux 用户主要靠这个）
+# 用法：sh /data/adb/vg <子命令>
+M=/data/adb/modules/vgd
+. "$M/lib.sh"
+
+cmd=$1
+[ $# -gt 0 ] && shift
+
+usage() {
+  echo "verity-guard 命令"
+  echo "  init        建立基线（第一次必须做，只读）"
+  echo "  backup      备份关键分区（先校验与基线一致）"
+  echo "  check       检查一次（模块脚本 + 分区哈希）"
+  echo "  rollback    把被改过的分区按基线写回去（要 --yes）"
+  echo "  restore <分区>  只写回一个分区（要 --yes）"
+  echo "  export      导出排障包"
+  echo "  status      看上一次检查的人类可读结果"
+  echo "  panel       打开音量键面板（短按移动、长按确认）"
+  echo
+  echo "例：sh /data/adb/vg check"
+  echo "    sh /data/adb/vg init"
+  echo "    sh /data/adb/vg rollback --yes"
+}
+
+case "$cmd" in
+  init)      sh "$M/init.sh" --yes "$@" ;;
+  check)     sh "$M/wd.sh" ;;
+  backup)    sh "$M/backup.sh" --yes ;;
+  restore)
+    part=$1
+    if [ -z "$part" ]; then
+      echo "用法：vg restore <分区> [--yes]"
+      exit 2
+    fi
+    shift
+    sh "$M/restore.sh" "$part" "${1:---yes}" ;;
+  rollback)  sh "$M/rollback.sh" "$@" ;;
+  export)    sh "$M/export.sh" ;;
+  status)
+    if [ -s "$G/状态.txt" ]; then
+      cat "$G/状态.txt"
+    else
+      echo "还没跑过检查。先执行：sh /data/adb/vg check"
+    fi
+    ;;
+  panel)     sh "$M/action.sh" ;;
+  ""|-h|--help|help) usage ;;
+  *) echo "未知命令：$cmd"; echo; usage; exit 2 ;;
+esac
