@@ -17,16 +17,17 @@ G=/sdcard/Download/DSH-Go/guard
 mkdir -p "$G/chan" "$G/backup" "$G/exports" 2>/dev/null
 
 # 估一下备份要多少空间
+# 注意：mksh 的整数在部分机型上是 32 位，按字节累加会溢出（45GB 变成 306MB），
+# 所以一边加一边除到 MB；df -k 的第 4 列是 KB，也要换成 MB 再比。
 . "$MODPATH/parts.sh" 2>/dev/null
 detect_parts 2>/dev/null
-need=0
+need_mb=0
 for p in $PARTS; do
   s=$(blockdev --getsize64 "$BYNAME/$p" 2>/dev/null)
-  [ -n "$s" ] && need=$((need + s))
+  [ -n "$s" ] && need_mb=$((need_mb + s / 1048576))
 done
-need_mb=$((need / 1048576))
 ak=$(df -k "$G" 2>/dev/null | awk 'END{print $4}')
-[ -n "$ak" ] || ak=0
+case "$ak" in ''|*[!0-9]*) ak=0 ;; esac
 avail_mb=$((ak / 1024))
 
 say() {
@@ -36,7 +37,9 @@ say() {
 say " "
 say "- verity-guard 已安装：守护 $NP 个关键分区（$PARTS）"
 say "- 备份需要约 ${need_mb} MB 空间，当前可用 ${avail_mb} MB"
-if [ "$ak" -lt "$need" ]; then
+if [ "$ak" -le 0 ]; then
+  say "- 读不到 /sdcard 可用空间，跳过空间检查（装完可在面板看备份总量）"
+elif [ "$avail_mb" -lt "$need_mb" ]; then
   say "- ⚠️ 空间不够备份！先清出至少 $((need_mb - avail_mb)) MB"
 fi
 say " "
