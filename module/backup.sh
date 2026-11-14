@@ -63,7 +63,7 @@ for f in "$B"/*.img; do
   have_mb=$((have_mb + ${s:-0} / 1048576))
 done
 ak=$(df -k "$G" 2>/dev/null | awk 'END{print $4}')
-[ -n "$ak" ] || ak=0
+case "$ak" in ''|*[!0-9]*) ak=0 ;; esac
 avail_mb=$((ak / 1024 + have_mb))
 if [ "$avail_mb" -lt "$need_mb" ]; then
   prog "备份被拒绝：空间不够（需要 $need_mb MB，可用 $avail_mb MB）"
