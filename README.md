@@ -55,11 +55,13 @@ BL 锁着、又有 root 的机器，风险最高：模块能写分区，但没�
 1. 刷 `verity-guard-v1.5.0.zip`
    - Magisk：模块 → 从本地安装
    - KernelSU / APatch：模块 → 安装
-2. **重启一次，Magisk 和 KernelSU 都要**（实测两个管理器都这样，不重启就用不了）。
-   - Magisk：模块装完先落在 `/data/adb/modules_update/vgd`，重启后才合并到 `/data/adb/modules/vgd`
-   - KernelSU：刷完同样要重启，`/data/adb/modules/vgd` 和守护进程才会就位
+2. **重启一次，Magisk / KernelSU / APatch 都要**。
+   原理一样：装模块只是把文件解包到 `/data/adb`，模块真正的加载和守护进程启动都在开机那一下，
+   不重启等于没装。
+   - Magisk：装完先落在 `/data/adb/modules_update/vgd`，重启后才合并到 `/data/adb/modules/vgd`
+   - KernelSU / APatch：刷完要重启，`/data/adb/modules/vgd` 和守护进程才会就位
 
-   不重启的话，后面所有命令都会报「找不到文件」或没有面板。
+   不重启的话，后面所有命令都会报「找不到文件」，或者点开模块没有面板。
 3. 打开模块：
    - **KernelSU / APatch：刷入 → 重启 → 点开模块就能用**。面板里就三个按钮：
      建立基线 / 备份 / 检查，从第一个开始点，按顺序点完就配好了
