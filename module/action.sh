@@ -56,7 +56,7 @@ space_info() {
     HAVE_MB=$((HAVE_MB + ${s:-0} / 1048576))
   done
   ak=$(df -k "$G" 2>/dev/null | awk 'END{print $4}')
-  [ -n "$ak" ] || ak=0
+  case "$ak" in ''|*[!0-9]*) ak=0 ;; esac
   AVAIL_MB=$((ak / 1024 + HAVE_MB))
 }
 
